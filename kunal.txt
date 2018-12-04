@@ -1,0 +1,6 @@
+for application branch
+Hi Nalini and Aruna,
+
+This email is to explain you several things when you open ticket for issues concerning AIM :
+-	In spoctool, the service offering you have to use is not DOO (because AIM has nothing common with DOO). The service offering depends on applications impacted and I have summarize them in the table below :
+
