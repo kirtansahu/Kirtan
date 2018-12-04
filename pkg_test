@@ -1,0 +1,17 @@
+select 
+distinct trunc(h.creation_date) as crtdate,
+f.status_code,
+p.attribute_char1 AS TYPE,
+nvl(p.attribute_number3,0) as moflag,
+count (distinct f.source_order_number) as orders,
+count(1) as lines,
+sum(f.ordered_qty) as qty
+from fusion.doo_fulfill_lines_all F
+inner join fusion.doo_fulfill_lines_eff_b P on f.fulfill_line_id = p.fulfill_line_id
+inner join FUSION.doo_headers_all H on f.header_id = h.header_id
+and 'OrderDetails' = p.context_code
+and p.attribute_char18 IN ('NCA')
+and trunc(h.creation_date) = trunc(sysdate)
+group by trunc(h.creation_date), f.status_code, p.attribute_char1, p.attribute_number3
+ORDER BY trunc(h.creation_date) desc;
+
