@@ -7,8 +7,8 @@ Pipeline {
       stages {
               stage ('Initialize'){
                        steps {
-                                echo "PATH = ${PATH}
-                                echo "M2_PATH = ${M2_PATH}
+                                echo "PATH = ${PATH}"
+                                echo "M2_PATH = ${M2_PATH}"
                               }
                     }
              }
