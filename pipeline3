@@ -1,10 +1,77 @@
-pipeline{
-agent any
-stages {
-    stage('build') {
-     steps {
-      sh 'mvn --version'
-     }
-    }
-}
-}
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+
+
+trigger:
+batch: "true"
+branches:
+include:
+- master
+- testbr
+
+
+
+paths:
+exclude:
+- README.md
+- azure-pipelines.yml
+pr:
+autoCancel: "true"
+branches:
+include:
+- master
+paths:
+exclude:
+- README.md
+jobs:
+- job: Deploy
+steps:
+- task: NodeTool@0
+inputs:
+versionSpec: '14.x'
+displayName: 'Install Node.js'
+
+
+
+- bash:
+npm install sfdx-cli --global
+displayName: Install Salesforce CLI
+
+
+
+- bash:
+echo 'y' | sfdx plugins:install sfdx-git-delta
+displayName: Install GIT DELTA
+
+
+
+- bash:
+sfdx sgd:source:delta --to HEAD --from HEAD^ --output .
+displayName: Create Delta
+
+
+
+- bash:
+sfdx force:source:convert --manifest=package/package.xml --outputdir=convert
+displayName: Convert Delta
+
+
+
+- bash:
+cat package/package.xml
+displayName: Display Delta
+
+
+
+- bash:
+sfdx force:auth:jwt:grant --clientid $(salesforceProdClientid) --jwtkeyfile server.key --username $(salesforceProdUsername) --instanceurl $(salesforceProdInstanceUrl) -a prod
+displayName: Authorize salesforce org
+
+
+
+- bash:
+sfdx force:mdapi:deploy -u swapnil99.org2.salesforce@gmail.com --deploydir=convert -w 30
+displayName: Deploy Delta
