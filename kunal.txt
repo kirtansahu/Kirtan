@@ -1,12 +1,75 @@
-for application branch
-Hi Nalini and Aruna,
+# Starter pipeline
 
-This email is to explain you several things when you open ticket for issues concerning AIM :
--	In spoctool, the service offering you have to use is not DOO (because AIM has nothing common with DOO). The service offering depends on applications impacted and I have summarize them in the table below :
-inserted few lines
+# Start with a minimal pipeline that you can customize to build and deploy your code.
 
+# Add steps that build, run tests, deploy, and more:
 
-
+# https://aka.ms/yaml
 
 
-tested
+
+trigger:
+
+- master
+
+
+
+pool:
+
+  vmImage: windows-latest
+
+
+
+steps:
+
+- script: |
+
+     echo "Build Type: $(BUILD_TYPE)"
+
+     echo "GitEndVersion: $(GitEndVersion)"
+
+     echo "GitStartVersion: $(GitStartVersion)"
+
+     echo "Run_SpecifiedTest: $(Run_SpecifiedTest)"
+
+     echo "Run_ApexTest Type: $(Run_ApexTest)"
+
+  displayName: 'Confirming Variables'
+
+
+
+- bash:
+
+   npm install sfdx-cli --global
+
+  displayName: 'Install Salesforce CLI'
+
+
+
+- script:
+
+   ant -file build.xml -DBuild_Type="Validate Only" -DGitEndVersion="" -DGitStartVersion="" -DRun_SpecifiedTest="" -DRun_ApexTest="" -Dgit.ignore.file=git_ignore_list.txt -Dexecution.properties.file=CISupport/Sandbox/taskExecution.properties -Dproperty.file.path=CISupport/Sandbox/Sandbox_default.properties -Dgit.log.comment=git_log_comment.log -v startCICD
+
+  displayName: 'Validate Only'
+
+  condition: eq(variables['BUILD_TYPE'], 'Validate Only')
+
+
+
+- script:
+
+   ant -file build.xml -DBuild_Type="Deploy" -DGitEndVersion="" -DGitStartVersion="" -DRun_SpecifiedTest="" -DRun_ApexTest="" -Dgit.ignore.file=git_ignore_list.txt -Dexecution.properties.file=CISupport/Sandbox/taskExecution.properties -Dproperty.file.path=CISupport/Sandbox/Sandbox_default.properties -Dgit.log.comment=git_log_comment.log -v startCICD
+
+  displayName: 'Deploy'
+
+  condition: eq(variables['BUILD_TYPE'], 'Deploy')
+
+
+
+- script:
+
+   ant -file build.xml -DBuild_Type="Rollback" -DGitEndVersion="" -DGitStartVersion="" -DRun_SpecifiedTest="" -DRun_ApexTest="" -Dgit.ignore.file=git_ignore_list.txt -Dexecution.properties.file=CISupport/Sandbox/taskExecution.properties -Dproperty.file.path=CISupport/Sandbox/Sandbox_default.properties -Dgit.log.comment=git_log_comment.log -v startCICD
+
+  displayName: 'Rollback'
+
+  condition: eq(variables['BUILD_TYPE'], 'Rollback')
